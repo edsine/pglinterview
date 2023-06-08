@@ -5,7 +5,13 @@ const router = express.Router();
 
 // get allTask route
 router.get('/allTasks', (req, res) => {
-  res.send(tasks)
+  try {
+    res.send(tasks)
+  }
+  catch (err) {
+    console.log(err.message);
+    return res.send('No Tasks found')
+  }
 })
 
 // update allTask route

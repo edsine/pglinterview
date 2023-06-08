@@ -11,21 +11,16 @@ router.get('/', (req, res) => {
 
 // submit newTask
 router.post('/', async (req, res) => {
-
-  // collect task from body
-  const { task } = req.body;
-
-  // try to submit
+  // extract task from request params
+  const task = req.body;
   try {
-    await tasksRepo.create({ task });
+    await tasksRepo.create(task);
   }
-
-  // catch error
   catch (err) {
-    return res.send('Could not create item')
+    return res.send('Could not create task')
   }
 
-  res.redirect('/allTasks');
+  res.redirect('/allTasks')
 });
 
 module.exports = router;

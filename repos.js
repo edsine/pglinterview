@@ -1,42 +1,33 @@
 // require in the dependencies
 const fs = require('fs');
-const crypto = require('crypto');
 
 module.exports = class Repos {
   constructor(filename) {
-
     // checking for filename
     if (!filename) {
       throw new Error('Creating a repository requires a filename');
     }
 
-    // initialize filesystem
+    // filesystem init, try and catch (errors)
     this.filename = filename;
-
-    // try to write file to system
     try {
       fs.accessSync(this.filename);
     }
-
-    // catch any error
     catch (err) {
       fs.writeFileSync(this.filename, '[]');
     }
   }
 
   // creating tasks
-  async create(task) {
-    task.id = this.randomId();
-
+  async create(item) {
     const tasks = await this.getAll();
+    tasks.push(item);
 
-    tasks.push(task);
     await this.writeAll(tasks);
-
-    return tasks;
+    return item;
   }
 
-  // getting all tasks
+  // getting allTasks
   async getAll() {
     return JSON.parse(
       await fs.promises.readFile(this.filename, {
@@ -51,28 +42,17 @@ module.exports = class Repos {
       this.filename, JSON.stringify(tasks, null, 2));
   }
 
-  // assign id to task
-  randomId() {
-    return crypto.randomBytes(4).toString('hex');
-  }
-
-  // get tasks from all tasks
-  async getOne(id) {
-    const tasks = await this.getAll();
-    return tasks.find(task => task.id === id);
-  }
-
-
-  // delete tasks from all tasks
+  // delete task from allTasks
   async delete(id) {
     const tasks = await this.getAll();
+
     const filteredTasks = tasks.filter(
       task => task.id !== id);
     await this.writeAll(filteredTasks);
   }
 
-  // update or edit tasks
-  async update(id) {
+  // update or edit task
+  async update(id, item) {
     const tasks = await this.getAll();
     const task = tasks.find(task => task.id === id);
 
@@ -80,7 +60,7 @@ module.exports = class Repos {
       throw new Error(`Task with id ${id} not found!`)
     }
 
-    Object.assign(task, tasks);
+    Object.assign(tasks, item);
     await this.writeAll(tasks);
   }
 }

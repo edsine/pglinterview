@@ -1,4 +1,5 @@
 //import/ requiring in app dependencies 
+const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
 const app = express();
@@ -12,6 +13,7 @@ const newTaskRouter = require('./routes/newTasks');
 const allTaskRouter = require('./routes/allTasks');
 
 // using the different app routes
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(newTaskRouter);
 app.use(allTaskRouter);
 
