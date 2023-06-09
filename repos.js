@@ -1,5 +1,6 @@
 // require in the dependencies
 const fs = require('fs');
+const crypto = require('crypto');
 
 module.exports = class Repos {
   constructor(filename) {
@@ -20,11 +21,17 @@ module.exports = class Repos {
 
   // creating tasks
   async create(item) {
+    item.id = this.randomId();
+
     const tasks = await this.getAll();
     tasks.push(item);
-
     await this.writeAll(tasks);
+
     return item;
+  }
+
+  randomId() {
+    return crypto.randomBytes(4).toString('hex');
   }
 
   // getting allTasks
@@ -42,6 +49,19 @@ module.exports = class Repos {
       this.filename, JSON.stringify(tasks, null, 2));
   }
 
+  // update or edit task
+  async update(id, item) {
+    const tasks = await this.getAll();
+    const task = tasks.find(task => task.id === id);
+
+    // no element in the client-side for update request
+    if (!task) {
+      throw new Error(`Task with id ${id} not found!`)
+    }
+
+    Object.assign(tasks, item);
+  }
+
   // delete task from allTasks
   async delete(id) {
     const tasks = await this.getAll();
@@ -49,18 +69,7 @@ module.exports = class Repos {
     const filteredTasks = tasks.filter(
       task => task.id !== id);
     await this.writeAll(filteredTasks);
-  }
 
-  // update or edit task
-  async update(id, item) {
-    const tasks = await this.getAll();
-    const task = tasks.find(task => task.id === id);
-
-    if (!task) {
-      throw new Error(`Task with id ${id} not found!`)
-    }
-
-    Object.assign(tasks, item);
-    await this.writeAll(tasks);
+    return tasks;
   }
 }
